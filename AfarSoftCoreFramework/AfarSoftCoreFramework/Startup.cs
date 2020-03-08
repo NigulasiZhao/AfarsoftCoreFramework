@@ -2,10 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AfarSoftCoreFramework.Entity;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -26,6 +28,21 @@ namespace AfarSoftCoreFramework
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+            #region Swagger
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+                {
+                    Version = "v1.1.0",
+                    Title = "Ray WebAPI",
+                    Description = "¿ò¼Ü¼¯ºÏ",
+                });
+            });
+            #endregion
+            services.AddDbContext<AfarSoftCoreFrameworkDbContext>(options =>
+                options.UseMySql(Configuration.GetConnectionString("Default")));
+            //services.AddDbContext<DataContext>(options => options.UseMySql(connection));
+            services.AddMvc();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -46,6 +63,13 @@ namespace AfarSoftCoreFramework
             {
                 endpoints.MapControllers();
             });
+            #region Swagger
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "ApiHelp V1");
+            });
+            #endregion
         }
     }
 }
